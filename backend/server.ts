@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 3001;
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-let supabase: ReturnType<typeof createClient> | null = null;
+let supabase: any = null;
 const isSupabaseConfigured = supabaseUrl && supabaseServiceRoleKey && 
                              !supabaseUrl.includes('your_supabase_url') && 
                              supabaseUrl.startsWith('http');
@@ -162,6 +162,7 @@ async function sendEmailOwnerNotification(leadId: string, name: string, phone: s
 // ----------------------------------------------------
 
 async function isDuplicateSubmission(whatsapp_number: string, source: string): Promise<boolean> {
+  if (!supabase) return false;
   try {
     const sixtySecondsAgo = new Date(Date.now() - 60000).toISOString();
     const { data, error } = await supabase
