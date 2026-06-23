@@ -221,20 +221,25 @@ export default function TrialForm() {
                 <p className="text-[10px] text-gray-500 text-left max-w-md">
                   By submitting, you agree to receive WhatsApp updates and email notifications regarding your trial booking coordinates.
                 </p>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-8 py-4 bg-brand-orange text-black font-bold uppercase tracking-wider text-xs rounded-full hover:bg-brand-orange/90 transition-all flex items-center justify-center shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Booking Slot...
-                    </>
-                  ) : (
-                    'Book My Free Trial'
-                  )}
-                </button>
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-8 py-4 bg-brand-orange text-black font-bold uppercase tracking-wider text-xs rounded-full hover:bg-brand-orange/90 transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Booking Slot...
+                      </>
+                    ) : (
+                      'Book My Free Trial \u2192'
+                    )}
+                  </button>
+                  <p className="text-[10px] text-brand-orange/80 font-medium">
+                    Joined by 300+ members in Kondapur & Hitec City
+                  </p>
+                </div>
               </div>
 
             </form>

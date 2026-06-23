@@ -47,10 +47,10 @@ export default function FloatingActions({ onOpenAssessment }: FloatingActionsPro
           href="https://wa.me/919999999999?text=Hello!%20I'd%20like%20to%20know%20more%20about%20membership%20options."
           target="_blank"
           rel="noreferrer"
-          className="p-3 bg-brand-charcoal text-white rounded-xl border border-white/5 mx-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="p-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl mx-1 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
           aria-label="WhatsApp Coach"
         >
-          <MessageSquare className="w-4 h-4 text-brand-orange" />
+          <MessageSquare className="w-4 h-4 text-white" />
         </a>
 
         <a
@@ -81,10 +81,10 @@ export default function FloatingActions({ onOpenAssessment }: FloatingActionsPro
           href="https://wa.me/919999999999?text=Hello!%20I'd%20like%20to%20book%20a%20private%20coach%20assessment."
           target="_blank"
           rel="noreferrer"
-          className="hidden md:flex p-3.5 bg-brand-charcoal/90 hover:bg-brand-orange hover:text-black text-white rounded-full border border-brand-orange/15 shadow-xl pointer-events-auto transition-all duration-300 hover:scale-105"
+          className="hidden md:flex p-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-full shadow-xl pointer-events-auto transition-all duration-300 hover:scale-105"
           aria-label="Chat on WhatsApp"
         >
-          <MessageSquare className="w-5 h-5 text-brand-orange group-hover:text-black" />
+          <MessageSquare className="w-5 h-5 text-white" />
         </a>
 
         {/* Floating Calendar Trial button (Desktop only) */}

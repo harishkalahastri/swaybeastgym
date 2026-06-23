@@ -42,7 +42,7 @@ export default function Footer() {
             <ul className="space-y-3 text-xs text-gray-400">
               <li className="flex items-start">
                 <MapPin className="w-4 h-4 text-brand-orange mr-2.5 mt-0.5 shrink-0" />
-                <span>Road No. 36, Jubilee Hills, Near Metro Station, Hyderabad, Telangana - 500033</span>
+                <span>Pillar No. 135, 2nd Floor, Above Vaishnaoi Honda Showroom, Kondapur, Hyderabad, Telangana - 500084</span>
               </li>
               <li className="flex items-center">
                 <Phone className="w-4 h-4 text-brand-orange mr-2.5 shrink-0" />
@@ -70,7 +70,7 @@ export default function Footer() {
             <div className="w-full h-40 rounded-xl overflow-hidden border border-brand-orange/10 relative grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
               <iframe
                 title="Google Maps Location"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.402243763784!2d78.40348737516565!3d17.430932283466133!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb90d7c3d7373f%3A0xc3cf9c9a59b3f3b9!2sJubilee%20Hills%20Road%20No%2036!5e0!3m2!1sen!2sin!4v1718972800000!5m2!1sen!2sin"
+                src="https://maps.google.com/maps?q=Pillar+No+135+Kondapur+Hyderabad&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 className="w-full h-full border-0"
                 allowFullScreen={false}
                 loading="lazy"
