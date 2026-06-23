@@ -96,6 +96,9 @@ export class SyncEngine {
         console.log('[SyncEngine] Network restored. Processing queue...');
         this.processQueue();
       });
+      if (navigator.onLine) {
+        this.processQueue();
+      }
     }
   }
 }

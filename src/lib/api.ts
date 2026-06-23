@@ -1,5 +1,8 @@
 import { SyncEngine } from './sync';
 
+// Initialize background sync listener and process queue if online
+SyncEngine.initAutoSync();
+
 export const api = {
   async submitTrial(payload: any) {
     return this.submitWithSync('TRIAL', payload);
