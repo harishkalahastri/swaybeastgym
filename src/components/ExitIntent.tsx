@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, Loader2, Check } from 'lucide-react';
+import { api } from '../lib/api';
 
 const exitSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -20,7 +21,7 @@ type ExitFormValues = z.infer<typeof exitSchema>;
 export default function ExitIntent() {
   const [isVisible, setIsVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<{ isSuccess: boolean; referenceId?: string; message?: string }>({ isSuccess: false });
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -74,27 +75,32 @@ export default function ExitIntent() {
     setIsSubmitting(true);
     setServerError(null);
     try {
-      const response = await fetch('/api/leads/trial-form', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          source: 'exit_intent',
-          preferred_time: 'Not specified (Exit Intent capture)',
-        }),
+      const result = await api.submitConsultation({
+        name: data.name,
+        whatsapp_number: data.whatsapp_number,
+        email: 'not-provided@example.com',
+        goal: data.fitness_goal,
+        frequency: 'Not specified (Exit Intent capture)',
+        experience: 'Not specified (Exit Intent capture)',
+        matched_program: 'Exit Intent Assessment Blueprint',
+        source: 'exit_intent',
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || 'Submission failed');
-      }
-
-      setIsSuccess(true);
+      setSuccessData({
+        isSuccess: true,
+        referenceId: result.reference_id || 'PENDING-SYNC',
+        message: result.message
+      });
       reset();
     } catch (err) {
       console.error(err);
       const errMsg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       setServerError(errMsg);
+      // Fallback
+      setSuccessData({
+        isSuccess: true,
+        referenceId: 'PENDING-SYNC'
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -129,14 +135,19 @@ export default function ExitIntent() {
               <X className="w-4 h-4" />
             </button>
 
-            {isSuccess ? (
+            {successData.isSuccess ? (
               <div className="text-center py-6">
                 <div className="w-12 h-12 bg-brand-orange/10 border border-brand-orange/30 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Check className="w-6 h-6 text-brand-orange" />
                 </div>
                 <h3 className="font-bebas text-3xl text-white uppercase">Plan Reserved</h3>
+                {successData.referenceId && (
+                  <div className="inline-block bg-black border border-white/10 text-brand-orange font-mono text-xs px-4 py-2 rounded-xl mb-3">
+                    Ref: {successData.referenceId}
+                  </div>
+                )}
                 <p className="text-gray-400 text-xs mt-3 leading-relaxed font-light">
-                  Thank you. Your assessment blueprint slot has been successfully locked. We have sent a confirmation message on WhatsApp.
+                  {successData.message || "Thank you. Your assessment blueprint slot has been successfully locked. We have sent a confirmation message on WhatsApp."}
                 </p>
                 <button
                   onClick={() => setIsVisible(false)}

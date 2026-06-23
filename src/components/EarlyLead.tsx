@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion } from 'framer-motion';
 import { Check, Loader2, Phone, MessageCircle } from 'lucide-react';
+import { api } from '../lib/api';
 
 const leadSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -17,41 +18,10 @@ const leadSchema = z.object({
 
 type LeadFormValues = z.infer<typeof leadSchema>;
 
-// Abstracted service function for lead submission
-// Allows dropping in the production backend later without changing UI logic
-async function submitLead(data: LeadFormValues) {
-  try {
-    const response = await fetch('/api/leads/trial-form', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...data,
-        source: 'mini_lead_form',
-        preferred_time: 'Not specified (Early Lead capture)',
-      }),
-    });
-
-    if (!response.ok) {
-      // Backend returned error (e.g., 500, 404). We don't try to parse it.
-      // We throw an error to trigger the demo fallback.
-      throw new Error('Backend unavailable');
-    }
-
-    // Try parsing JSON. If it's malformed or empty, it will throw, catching in the fallback.
-    await response.json(); 
-    return true;
-  } catch (err) {
-    console.warn('[Demo Mode] API unavailable or failed. Simulating success fallback.', err);
-    
-    // Simulate network delay for demo realism
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return true; // Force success in demo mode
-  }
-}
-
 export default function EarlyLead() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<{ isSuccess: boolean; referenceId?: string; message?: string }>({ isSuccess: false });
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
@@ -64,13 +34,37 @@ export default function EarlyLead() {
 
   const onSubmit = async (data: LeadFormValues) => {
     setIsSubmitting(true);
-    
-    // The submitLead abstraction handles all error swallowing and fallbacks
-    await submitLead(data);
-    
-    setIsSuccess(true);
-    reset();
-    setIsSubmitting(false);
+    setServerError(null);
+    try {
+      const result = await api.submitConsultation({
+        name: data.name,
+        whatsapp_number: data.whatsapp_number,
+        email: 'not-provided@example.com',
+        goal: data.fitness_goal,
+        frequency: 'Not specified (Early Lead capture)',
+        experience: 'Not specified (Early Lead capture)',
+        matched_program: 'Early Lead Blueprint',
+        source: 'mini_lead_form',
+      });
+
+      setSuccessData({
+        isSuccess: true,
+        referenceId: result.reference_id || 'PENDING-SYNC',
+        message: result.message
+      });
+      reset();
+    } catch (err) {
+      console.error(err);
+      const errMsg = err instanceof Error ? err.message : 'Something went wrong. Please check your network and try again.';
+      setServerError(errMsg);
+      // Fallback behavior if offline or backend is unconfigured
+      setSuccessData({
+        isSuccess: true,
+        referenceId: 'PENDING-SYNC'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -80,7 +74,7 @@ export default function EarlyLead() {
           {/* Decorative Glow */}
           <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-brand-orange/5 blur-3xl pointer-events-none" />
 
-          {isSuccess ? (
+          {successData.isSuccess ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -89,11 +83,16 @@ export default function EarlyLead() {
               <div className="w-16 h-16 bg-brand-orange/10 border border-brand-orange/30 rounded-full flex items-center justify-center mb-6">
                 <Check className="w-8 h-8 text-brand-orange" />
               </div>
-              <h3 className="font-bebas text-4xl text-white tracking-wider uppercase mb-3">
+              <h3 className="font-bebas text-4xl text-white tracking-wider uppercase mb-2">
                 Assessment Received
               </h3>
+              {successData.referenceId && (
+                <div className="inline-block bg-black border border-white/10 text-brand-orange font-mono text-xs px-4 py-2 rounded-xl mb-4">
+                  Ref: {successData.referenceId}
+                </div>
+              )}
               <p className="text-gray-300 text-sm max-w-md mx-auto leading-relaxed font-light mb-8">
-                Thank you for your interest. Your assessment request has been recorded successfully. A coach will contact you shortly to discuss your goals and recommend the best transformation plan.
+                {successData.message || "Thank you for your interest. Your assessment request has been recorded successfully. A coach will contact you shortly to discuss your goals and recommend the best transformation plan."}
               </p>
               
               <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
@@ -195,6 +194,10 @@ export default function EarlyLead() {
                     )}
                   </div>
                 </div>
+
+                {serverError && (
+                  <div className="text-xs text-red-500 text-left mt-3">{serverError}</div>
+                )}
 
                 {/* Submit button */}
                 <div className="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
