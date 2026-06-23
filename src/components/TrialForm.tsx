@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion } from 'framer-motion';
 import { CalendarRange, Check, Loader2 } from 'lucide-react';
+import { api } from '../lib/api';
 
 const trialSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -23,7 +24,7 @@ type TrialFormValues = z.infer<typeof trialSchema>;
 
 export default function TrialForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<{ isSuccess: boolean; referenceId?: string; message?: string }>({ isSuccess: false });
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -39,21 +40,16 @@ export default function TrialForm() {
     setIsSubmitting(true);
     setServerError(null);
     try {
-      const response = await fetch('/api/leads/trial-form', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...data,
-          source: 'trial_form',
-        }),
+      const result = await api.submitTrial({
+        ...data,
+        source: 'trial_form',
       });
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.message || 'Trial booking failed');
-      }
-
-      setIsSuccess(true);
+      setSuccessData({ 
+        isSuccess: true, 
+        referenceId: result.reference_id || result.leadId || 'PENDING-SYNC',
+        message: result.message
+      });
       reset();
     } catch (err) {
       console.error(err);
@@ -84,7 +80,7 @@ export default function TrialForm() {
         {/* Card Form container */}
         <div className="glass-card bg-brand-charcoal border border-brand-orange/10 p-8 md:p-12 rounded-3xl shadow-2xl relative overflow-hidden min-h-[460px] flex flex-col justify-center">
           
-          {isSuccess ? (
+          {successData.isSuccess ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -93,11 +89,16 @@ export default function TrialForm() {
               <div className="w-16 h-16 bg-brand-orange/10 border border-brand-orange/30 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Check className="w-8 h-8 text-brand-orange" />
               </div>
-              <h3 className="font-bebas text-4xl text-white tracking-wider uppercase">
+              <h3 className="font-bebas text-4xl text-white tracking-wider uppercase mb-2">
                 You're Booked!
               </h3>
-              <p className="text-gray-300 text-sm max-w-md mx-auto mt-4 leading-relaxed font-light">
-                We have registered your details. A coach will reach out to you shortly to confirm your slot. We've sent a confirmation message on WhatsApp.
+              {successData.referenceId && (
+                <div className="inline-block bg-black border border-white/10 text-brand-orange font-mono text-sm px-4 py-2 rounded-xl mb-4">
+                  Ref: {successData.referenceId}
+                </div>
+              )}
+              <p className="text-gray-300 text-sm max-w-md mx-auto leading-relaxed font-light">
+                {successData.message || "We have registered your details. A coach will reach out to you shortly to confirm your slot. We've sent a confirmation message on WhatsApp."}
               </p>
             </motion.div>
           ) : (

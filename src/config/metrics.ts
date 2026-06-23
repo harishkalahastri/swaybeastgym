@@ -33,5 +33,5 @@ export const defaultMetrics: GymMetrics = {
   ratingValue: 4.9,
   establishedYear: 2016,
   cityName: "Hyderabad",
-  gymName: "Onyx Fitness"
+  gymName: "Sway Beast Fitness"
 };

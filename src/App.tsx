@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Lenis from 'lenis';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
+
+import MyJourney from './pages/MyJourney';
 
 // Components
 import Navbar from './components/Navbar';
@@ -31,7 +34,7 @@ import EnrollmentModal from './components/EnrollmentModal';
 import type { SelectedPlan } from './components/EnrollmentModal';
 import ProgramConsultationModal from './components/ProgramConsultationModal';
 
-export default function App() {
+function HomePage() {
   const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
   const [isEnrollmentOpen, setIsEnrollmentOpen] = useState(false);
   const [selectedEnrollmentPlan, setSelectedEnrollmentPlan] = useState<SelectedPlan | null>(null);
@@ -179,5 +182,17 @@ export default function App() {
         programId={selectedProgramId}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/my-journey" element={<MyJourney />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }

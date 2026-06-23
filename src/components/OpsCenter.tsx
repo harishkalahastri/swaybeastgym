@@ -267,7 +267,7 @@ export default function OpsCenter() {
 
               {/* Bottom pitch reminder */}
               <div className="p-4 bg-brand-black border-t border-white/5 text-[9px] text-gray-500 text-center uppercase tracking-wider font-bold">
-                Pitch Mode Active &bull; Onyx Digital Agency Prototype
+                Pitch Mode Active &bull; Sway Beast Digital Agency Prototype
               </div>
 
             </motion.div>

@@ -17,7 +17,7 @@ export default function FAQ() {
     },
     {
       q: 'Are your trainers certified?',
-      a: 'Absolutely. We do not hire general floor assistants. Every trainer at Onyx holds advanced certifications in exercise physiology, sports science, or physical therapy, alongside specialized credentials in barbell safety.'
+      a: 'Absolutely. We do not hire general floor assistants. Every trainer at Sway Beast holds advanced certifications in exercise physiology, sports science, or physical therapy, alongside specialized credentials in barbell safety.'
     },
     {
       q: 'What are the gym timings?',

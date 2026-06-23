@@ -50,7 +50,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center">
                 <Mail className="w-4 h-4 text-brand-orange mr-2.5 shrink-0" />
-                <span>contact@onyxfitness.in</span>
+                <span>contact@swaybeast.com</span>
               </li>
               <li className="flex items-start">
                 <Clock className="w-4 h-4 text-brand-orange mr-2.5 mt-0.5 shrink-0" />

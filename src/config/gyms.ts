@@ -123,4 +123,4 @@ export const gyms: Record<string, GymProfile> = {
   }
 };
 
-export const defaultGymId = 'onyx';
+export const defaultGymId = 'sway';

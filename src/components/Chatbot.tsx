@@ -10,7 +10,7 @@ interface Message {
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { sender: 'bot', text: 'Welcome to Onyx Fitness. I can answer questions about our programs, trainers, pricing, or booking a trial. Select your language below.' }
+    { sender: 'bot', text: 'Welcome to Sway Beast Fitness. I can answer questions about our programs, trainers, pricing, or booking a trial. Select your language below.' }
   ]);
   const [lang, setLang] = useState<'en' | 'hi' | 'te'>('en');
   const [inputText, setInputText] = useState('');
@@ -123,7 +123,7 @@ export default function Chatbot() {
                 </div>
                 <div>
                   <h3 className="font-bebas text-lg tracking-wider text-white">
-                    Onyx Chat Assistant
+                    Sway Beast Chat Assistant
                   </h3>
                   <span className="text-[9px] text-gray-500 font-semibold uppercase tracking-wider block">
                     Grounded Pitch AI

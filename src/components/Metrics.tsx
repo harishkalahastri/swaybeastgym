@@ -90,7 +90,7 @@ export default function Metrics() {
             Numbers That Validate Our Process
           </h2>
           <p className="text-gray-400 text-sm mt-3">
-            Onyx Fitness is not just a commercial gym. We are a results-focused engineering platform tracking data and ensuring every training hour converts.
+            Sway Beast Fitness is not just a commercial gym. We are a results-focused engineering platform tracking data and ensuring every training hour converts.
           </p>
         </div>
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Settings } from 'lucide-react';
+import { Menu, X, Settings, UserCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useGym } from '../context/GymContext';
 
 interface NavbarProps {
@@ -107,6 +108,13 @@ export default function Navbar({ onOpenAssessment }: NavbarProps) {
             >
               Take Assessment
             </button>
+            <Link
+              to="/my-journey"
+              className="flex items-center text-xs font-semibold text-gray-300 hover:text-brand-orange transition-colors"
+            >
+              <UserCircle className="w-4 h-4 mr-1.5" />
+              My Portal
+            </Link>
             <a
               href="#trial-form"
               onClick={(e) => handleLinkClick(e, '#trial-form')}
@@ -132,6 +140,13 @@ export default function Navbar({ onOpenAssessment }: NavbarProps) {
             >
               Trial
             </a>
+            <Link
+              to="/my-journey"
+              className="p-2 text-gray-400 hover:text-white bg-brand-charcoal/50 border border-white/5 rounded-full flex items-center justify-center min-h-[44px] min-w-[44px]"
+              aria-label="My Portal"
+            >
+              <UserCircle className="w-4 h-4" />
+            </Link>
             <button
               onClick={() => window.dispatchEvent(new Event('toggle-ops-center'))}
               className="p-2 text-gray-400 hover:text-white bg-brand-charcoal/50 border border-white/5 rounded-full flex items-center justify-center min-h-[44px] min-w-[44px]"
@@ -203,6 +218,14 @@ export default function Navbar({ onOpenAssessment }: NavbarProps) {
             >
               Start Free Assessment
             </button>
+            <Link
+              to="/my-journey"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 text-sm text-center font-bold text-white bg-brand-charcoal border border-brand-orange/40 hover:bg-brand-orange/10 transition-colors rounded-lg min-h-[44px] flex items-center justify-center gap-2"
+            >
+              <UserCircle className="w-5 h-5" />
+              Access Client Portal
+            </Link>
             <a
               href="#trial-form"
               onClick={(e) => handleLinkClick(e, '#trial-form')}

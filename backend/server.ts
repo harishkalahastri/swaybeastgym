@@ -79,11 +79,11 @@ async function sendWhatsAppLeadNotification(leadId: string, name: string, phone:
     
     let messageBody = '';
     if (source === 'trial_form') {
-      messageBody = `Hi ${name}, your fitness trial assessment at Onyx is confirmed! Slot: ${extraInfo}. A coach will text you coordinates shortly.`;
+      messageBody = `Hi ${name}, your fitness trial assessment at Sway Beast Fitness is confirmed! Slot: ${extraInfo}. A coach will text you coordinates shortly.`;
     } else if (source === 'bmi_calculator') {
       messageBody = `Hi ${name}, your BMI calculation is complete. Result: ${extraInfo}. Book your free session now to start transforming.`;
     } else {
-      messageBody = `Hi ${name}, your matched fitness split is complete: ${extraInfo}. Book your free visit at Onyx to start lifting.`;
+      messageBody = `Hi ${name}, your matched fitness split is complete: ${extraInfo}. Book your free visit at Sway Beast to start lifting.`;
     }
 
     if (apiKey && phoneId && !apiKey.includes('your_whatsapp_api_key')) {
@@ -135,7 +135,7 @@ async function sendEmailOwnerNotification(leadId: string, name: string, phone: s
     const ownerEmail = process.env.OWNER_EMAIL || '';
     const resendKey = process.env.RESEND_API_KEY || '';
     
-    let emailHtml = `<p><strong>New Onyx Lead Capture</strong></p>
+    let emailHtml = `<p><strong>New Sway Beast Lead Capture</strong></p>
                      <p><strong>Name:</strong> ${name}</p>
                      <p><strong>WhatsApp:</strong> ${phone}</p>
                      <p><strong>Source:</strong> ${source}</p>`;
@@ -186,6 +186,80 @@ async function isDuplicateSubmission(whatsapp_number: string, source: string): P
 // ----------------------------------------------------
 // ROUTE ENDPOINTS
 // ----------------------------------------------------
+
+// [PHASE 8.5] OTP Generation
+app.post('/api/auth/send-otp', async (req: express.Request, res: express.Response) => {
+  const { phone_number } = req.body;
+  if (!phone_number) return res.status(400).json({ success: false, message: 'Phone number required' });
+
+  try {
+    if (!supabase) return res.status(200).json({ success: true, message: 'Stubbed OTP sent (No Supabase connected)' });
+    const { error } = await supabase.auth.signInWithOtp({ phone: phone_number });
+    if (error) throw error;
+    return res.status(200).json({ success: true, message: 'OTP Sent' });
+  } catch (err) {
+    console.error('OTP send failed:', err);
+    return res.status(500).json({ success: false, message: 'Failed to send OTP' });
+  }
+});
+
+// [PHASE 8.5] OTP Verification
+app.post('/api/auth/verify-otp', async (req: express.Request, res: express.Response) => {
+  const { phone_number, token } = req.body;
+  if (!phone_number || !token) return res.status(400).json({ success: false, message: 'Phone and token required' });
+
+  try {
+    if (!supabase) return res.status(200).json({ success: true, session: { access_token: 'stub-token' } });
+    const { data, error } = await supabase.auth.verifyOtp({ phone: phone_number, token, type: 'sms' });
+    if (error) throw error;
+    return res.status(200).json({ success: true, session: data.session });
+  } catch (err) {
+    console.error('OTP verify failed:', err);
+    return res.status(401).json({ success: false, message: 'Invalid OTP' });
+  }
+});
+
+// [PHASE 8.5] Unified Transactional Submission Layer
+app.post('/api/leads/process-submission', async (req: express.Request, res: express.Response) => {
+  const payload = req.body;
+  
+  if (!payload.client_submission_id || !payload.type || !payload.phone_number || !payload.full_name) {
+    return res.status(400).json({ success: false, message: 'Missing core tracking payload fields' });
+  }
+
+  try {
+    if (!supabase) {
+      console.log(`[STUB RPC] Process submission bypass for ${payload.type} from ${payload.phone_number}`);
+      return res.status(200).json({ success: true, customer_id: 'stub-cust-id', reference_id: 'SB-STUB-0001' });
+    }
+
+    const { data, error } = await supabase.rpc('process_submission', { payload });
+    
+    if (error) {
+      console.error('RPC Error:', error);
+      throw error;
+    }
+
+    // Success response format from RPC: { success: true, customer_id, reference_id }
+    if (!data.success) {
+      // It caught a duplicate via client_submission_id
+      if (data.error === 'Duplicate submission id') {
+        console.log(`[IDEMPOTENCY] Shielded duplicate submission: ${payload.client_submission_id}`);
+        return res.status(200).json({ success: true, status: 'duplicate_success_shielded' });
+      }
+      throw new Error(data.error);
+    }
+
+    // Trigger asynchronous notifications based on the result
+    sendWhatsAppLeadNotification(data.reference_id, payload.full_name, payload.phone_number, payload.type, `Reference ID: ${data.reference_id}`);
+    sendWhatsAppOwnerNotification(data.reference_id, payload.full_name, payload.phone_number, payload.type, `Ref: ${data.reference_id}`);
+    
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error('Process Submission failed:', err);
+    return res.status(500).json({ success: false, message: 'Internal transaction failed' });
+  }
+});
 
 // 1. Trial Form Submission
 app.post('/api/leads/trial-form', async (req: express.Request, res: express.Response) => {
@@ -507,13 +581,16 @@ app.post('/api/chat', async (req: express.Request, res: express.Response) => {
   }
 
   // Scoped Grounding data system instruction
-  const systemPrompt = `You are the Onyx Fitness Chat Coach. You only answer questions about Onyx Fitness.
-Here is the grounding data:
-- Programs Offered: Weight Loss (caloric splits), Muscle Gain (hypertrophy splits), Strength Training (barbell lift re-engineering), Personal Training (1-on-1 private coaching), Functional Fitness (stability/mobility), Women's Fitness (endocrine support), Athletic Performance (explosion/agility), Beginner Transformation (safe foundations).
-- Pricing Plans: Standard Split (₹3,500/month, gym floor access), Quarterly Adapt (₹9,500, nutrition targets + coach sessions), Half-Year Build (₹17,000, agility assessments), Annual Transform (₹30,000, metabolic checks + guest passes).
-- Coaches: Coach Vikram (Power & Hypertrophy), Coach Harish (Biomechanics & rehab, sports science), Coach Riya (Metabolic & Endocrine Nutrition).
-- Timings: Mon-Sat: 6:00 AM - 11:00 PM, Sun: 8:00 AM - 4:00 PM.
-- Location: Jubilee Hills Road No. 36, Hyderabad.
+  const systemPrompt = `You are the Sway Beast Fitness Chat Coach. You only answer questions about Sway Beast Fitness.
+If asked about memberships, trials, hours, or equipment, answer concisely and energetically based on the following context.
+Do not invent prices or schedules. If you don't know, tell them to call the gym or book a trial.
+    
+Context:
+- Location: Pillar No. 135, 2nd Floor, Above Vaishnaoi Honda Showroom, Kondapur, Hyderabad.
+- Memberships: Standard starts at ₹3,500/month. Quarterly Adapt is ₹9,500. Annual Elite is ₹25,000.
+- Coaches: Expert trainers specialized in biomechanics, muscle gain, fat loss, and sustainable transformation.
+- Vibe: Premium, results-oriented, hardcore but welcoming.
+- Core Offer: Free 1-Day Trial.
 
 RULES:
 1. If the user asks about unrelated topics (general knowledge, coding, recipes, calculations, or other gyms), politely redirect: "I can only help with questions about our programs, pricing, trainers, or booking a trial — what would you like to know?"
@@ -555,10 +632,11 @@ RULES:
     }
   } else {
     // Stub local default stubs depending on query
-    let reply = 'Welcome to Onyx. Our coaches Vikram, Harish, and Riya specialize in biomechanics, muscle gain, and fat loss. Let us know how we can help!';
-    if (message.toLowerCase().includes('price') || message.toLowerCase().includes('membership')) {
-      reply = 'Onyx memberships starts at ₹3,500/month for standard gym access. We highly recommend our Quarterly Adapt tier (₹9,500) which includes nutrition goals. Book a free trial below to begin.';
-    } else if (message.toLowerCase().includes('program') || message.toLowerCase().includes('class')) {
+    let userMessage = message.toLowerCase();
+    let reply = 'Welcome to Sway Beast Fitness! Our expert coaches specialize in biomechanics, muscle gain, and fat loss. Let us know how we can help!';
+    if (userMessage.includes('price') || userMessage.includes('cost') || userMessage.includes('membership')) {
+      reply = 'Sway Beast memberships start at ₹3,500/month for standard gym access. We highly recommend our Quarterly Adapt tier (₹9,500) which includes nutrition goals. Book a free trial below to begin.';
+    } else if (userMessage.includes('program') || userMessage.includes('class')) {
       reply = 'We offer Weight Loss, Muscle Gain, Strength Training, and Personal Training splits. Each schedule is customized to your biometrics. Fill out the form below to book a consultation.';
     }
     return res.status(200).json({ success: true, reply });
