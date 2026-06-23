@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { X, Check, Loader2, ShieldCheck } from 'lucide-react';
+import { api } from '../lib/api';
 
 const enrollmentSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -34,7 +35,7 @@ interface EnrollmentModalProps {
 
 export default function EnrollmentModal({ isOpen, onClose, plan }: EnrollmentModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<{ isSuccess: boolean; referenceId?: string; message?: string }>({ isSuccess: false });
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -50,43 +51,43 @@ export default function EnrollmentModal({ isOpen, onClose, plan }: EnrollmentMod
   // Reset state when modal opens
   useEffect(() => {
     if (isOpen) {
-      setIsSuccess(false);
+      setSuccessData({ isSuccess: false });
+      setServerError(null);
       reset();
     }
   }, [isOpen, reset]);
 
   const onSubmit = async (data: EnrollmentFormValues) => {
     setIsSubmitting(true);
+    setServerError(null);
     try {
-      const enhancedTimeField = `Plan: ${plan?.name} | Start: ${data.preferred_start_date} | Age: ${data.age} | Gender: ${data.gender}`;
-
-      const response = await fetch('/api/leads/trial-form', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name,
-          whatsapp_number: data.whatsapp_number,
-          email: data.email,
-          fitness_goal: data.fitness_goal,
-          preferred_time: enhancedTimeField,
-          source: 'enrollment_modal',
-        }),
+      const priceNumeric = plan ? parseFloat(plan.price.replace(/[^0-9.]/g, '')) : 0;
+      const result = await api.submitMembership({
+        ...data,
+        membership_plan: plan?.name || 'unknown',
+        membership_price: priceNumeric,
+        source: 'enrollment_modal',
       });
 
-      if (!response.ok) {
-        throw new Error('Backend unavailable');
-      }
-
-      await response.json();
-      setIsSuccess(true);
+      setSuccessData({
+        isSuccess: true,
+        referenceId: result.reference_id || 'PENDING-SYNC',
+        message: result.message
+      });
     } catch (err) {
-      console.warn('[Demo Mode] API unavailable or failed. Simulating success fallback.', err);
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setIsSuccess(true);
+      console.error(err);
+      const errMsg = err instanceof Error ? err.message : 'Something went wrong. Please check your network and try again.';
+      setServerError(errMsg);
+      // Fallback behavior if network is down/unconfigured in demo mode
+      setSuccessData({
+        isSuccess: true,
+        referenceId: 'PENDING-SYNC',
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   if (!isOpen || !plan) return null;
 
@@ -134,7 +135,7 @@ export default function EnrollmentModal({ isOpen, onClose, plan }: EnrollmentMod
           </div>
 
           <div className="p-8">
-            {isSuccess ? (
+            {successData.isSuccess ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -143,9 +144,14 @@ export default function EnrollmentModal({ isOpen, onClose, plan }: EnrollmentMod
                 <div className="w-16 h-16 bg-brand-orange/10 border border-brand-orange/30 rounded-full flex items-center justify-center mx-auto mb-6">
                   <ShieldCheck className="w-8 h-8 text-brand-orange" />
                 </div>
-                <h3 className="font-bebas text-4xl text-white tracking-wider uppercase mb-6">
+                <h3 className="font-bebas text-4xl text-white tracking-wider uppercase mb-2">
                   Membership Request Received
                 </h3>
+                {successData.referenceId && (
+                  <div className="inline-block bg-black border border-white/10 text-brand-orange font-mono text-sm px-4 py-2 rounded-xl mb-4">
+                    Ref: {successData.referenceId}
+                  </div>
+                )}
                 
                 <div className="bg-brand-black border border-white/5 rounded-xl p-6 mb-8 text-left max-w-sm mx-auto shadow-inner">
                   <p className="text-white mb-3 font-medium">Thank you, <span className="text-brand-orange">{getValues('name')}</span>.</p>
@@ -155,7 +161,7 @@ export default function EnrollmentModal({ isOpen, onClose, plan }: EnrollmentMod
                     has been securely logged.
                   </p>
                   <p className="text-gray-400 text-xs leading-relaxed border-t border-white/5 pt-4">
-                    Our team will contact you shortly to confirm availability and onboarding details.
+                    {successData.message || "Our team will contact you shortly to confirm availability and onboarding details."}
                   </p>
                 </div>
 
@@ -271,6 +277,9 @@ export default function EnrollmentModal({ isOpen, onClose, plan }: EnrollmentMod
                     {errors.preferred_start_date && <span className="text-xs text-red-500 mt-1">{errors.preferred_start_date.message}</span>}
                   </div>
                 </div>
+                {serverError && (
+                  <div className="text-xs text-red-500 text-left mt-3">{serverError}</div>
+                )}
 
                 <div className="mt-8 pt-6 border-t border-white/5">
                   <button

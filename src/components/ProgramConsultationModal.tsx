@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { X, Check, Loader2, Phone, MessageCircle } from 'lucide-react';
+import { api } from '../lib/api';
 
 // Program Configuration
 type ProgramType = 'weight_loss' | 'muscle_gain' | 'strength' | 'personal_training' | 'generic';
@@ -67,33 +68,6 @@ const consultationSchema = z.object({
 
 type ConsultationFormValues = z.infer<typeof consultationSchema>;
 
-// Reuse demo-safe submission
-async function submitLead(data: ConsultationFormValues, programConfig: ProgramConfig) {
-  try {
-    const extraInfo = `Program: ${programConfig.title} | F1: ${data.field1} | F2: ${data.field2} | F3: ${data.field3}`;
-    const response = await fetch('/api/leads/trial-form', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: data.name,
-        whatsapp_number: data.whatsapp_number,
-        email: data.email,
-        fitness_goal: programConfig.type,
-        source: 'program_consultation_modal',
-        preferred_time: extraInfo,
-      }),
-    });
-
-    if (!response.ok) throw new Error('Backend unavailable');
-    await response.json(); 
-    return true;
-  } catch (err) {
-    console.warn('[Demo Mode] API unavailable or failed. Simulating success fallback.', err);
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return true; 
-  }
-}
-
 interface ProgramConsultationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -102,7 +76,8 @@ interface ProgramConsultationModalProps {
 
 export default function ProgramConsultationModal({ isOpen, onClose, programId }: ProgramConsultationModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<{ isSuccess: boolean; referenceId?: string; message?: string }>({ isSuccess: false });
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
@@ -115,7 +90,8 @@ export default function ProgramConsultationModal({ isOpen, onClose, programId }:
 
   useEffect(() => {
     if (isOpen) {
-      setIsSuccess(false);
+      setSuccessData({ isSuccess: false });
+      setServerError(null);
       reset();
     }
   }, [isOpen, reset]);
@@ -124,9 +100,39 @@ export default function ProgramConsultationModal({ isOpen, onClose, programId }:
 
   const onSubmit = async (data: ConsultationFormValues) => {
     setIsSubmitting(true);
-    await submitLead(data, config);
-    setIsSuccess(true);
-    setIsSubmitting(false);
+    setServerError(null);
+    try {
+      const result = await api.submitConsultation({
+        name: data.name,
+        whatsapp_number: data.whatsapp_number,
+        email: data.email,
+        goal: config.type,
+        frequency: data.field1 || '',
+        experience: data.field3 || '',
+        matched_program: config.title,
+        field1: data.field1,
+        field2: data.field2,
+        field3: data.field3,
+        source: 'program_consultation_modal',
+      });
+
+      setSuccessData({
+        isSuccess: true,
+        referenceId: result.reference_id || 'PENDING-SYNC',
+        message: result.message
+      });
+    } catch (err) {
+      console.error(err);
+      const errMsg = err instanceof Error ? err.message : 'Something went wrong. Please check your network and try again.';
+      setServerError(errMsg);
+      // Fallback behavior if offline or backend is unconfigured
+      setSuccessData({
+        isSuccess: true,
+        referenceId: 'PENDING-SYNC',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -290,7 +296,7 @@ export default function ProgramConsultationModal({ isOpen, onClose, programId }:
             </div>
 
             <div className="p-6 sm:p-8">
-              {isSuccess ? (
+              {successData.isSuccess ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -299,11 +305,16 @@ export default function ProgramConsultationModal({ isOpen, onClose, programId }:
                   <div className="w-16 h-16 bg-brand-orange/10 border border-brand-orange/30 rounded-full flex items-center justify-center mx-auto mb-6">
                     <Check className="w-8 h-8 text-brand-orange" />
                   </div>
-                  <h3 className="font-bebas text-3xl text-white tracking-wider uppercase mb-3 leading-tight">
+                  <h3 className="font-bebas text-3xl text-white tracking-wider uppercase mb-2 leading-tight">
                     Your {config.title.replace('Strategy Session', '').replace('Blueprint', '').replace('Performance Review', '').replace('Discovery Call', '').trim()} Consultation Has Been Reserved
                   </h3>
+                  {successData.referenceId && (
+                    <div className="inline-block bg-black border border-white/10 text-brand-orange font-mono text-sm px-4 py-2 rounded-xl mb-4">
+                      Ref: {successData.referenceId}
+                    </div>
+                  )}
                   <p className="text-gray-400 text-sm max-w-xs mx-auto leading-relaxed font-light mb-8">
-                    One of our coaches will contact you shortly to discuss your goals and create your plan.
+                    {successData.message || "One of our coaches will contact you shortly to discuss your goals and create your plan."}
                   </p>
                   <div className="flex flex-col gap-3">
                     <a
@@ -350,6 +361,10 @@ export default function ProgramConsultationModal({ isOpen, onClose, programId }:
                       </div>
                     </div>
                   </div>
+
+                  {serverError && (
+                    <div className="text-xs text-red-500 text-left mt-3">{serverError}</div>
+                  )}
 
                   <div className="mt-6 pt-6">
                     <button

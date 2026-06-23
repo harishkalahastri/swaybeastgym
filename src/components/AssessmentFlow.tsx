@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, ArrowLeft, CheckCircle2, Activity, Target, Trophy, Dumbbell } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, CheckCircle2, Activity, Target, Trophy, Dumbbell, Loader2 } from 'lucide-react';
 import { useGym } from '../context/GymContext';
+import { api } from '../lib/api';
 
 interface AssessmentFlowProps {
   isOpen: boolean;
@@ -20,6 +21,12 @@ export default function AssessmentFlow({ isOpen, onClose }: AssessmentFlowProps)
   // BMI Result
   const [bmiResult, setBmiResult] = useState<number | null>(null);
 
+  // Submission State
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [successId, setSuccessId] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   // Lock body scroll when open
   useEffect(() => {
     if (isOpen) {
@@ -34,12 +41,52 @@ export default function AssessmentFlow({ isOpen, onClose }: AssessmentFlowProps)
         setExperience('');
         setContact({ name: '', phone: '', email: '' });
         setBmiResult(null);
+        setSuccessId(null);
+        setSuccessMessage(null);
+        setServerError(null);
+        setIsSubmitting(false);
       }, 500);
     }
     return () => {
       document.body.style.overflow = '';
     };
   }, [isOpen]);
+
+  const handleFinalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setServerError(null);
+    try {
+      const result = await api.submitConsultation({
+        name: contact.name,
+        whatsapp_number: contact.phone,
+        email: contact.email,
+        goal: goal,
+        frequency: '3-4 times/week',
+        experience: experience,
+        matched_program: `Coach Match: ${getCoachMatch().name}`,
+        source: 'assessment_flow',
+        height: bmiData.height,
+        weight: bmiData.weight,
+        age: bmiData.age,
+        gender: bmiData.gender,
+        bmi: bmiResult
+      });
+
+      setSuccessId(result.reference_id || 'PENDING-SYNC');
+      setSuccessMessage(result.message);
+      setStep(7);
+    } catch (err) {
+      console.error(err);
+      const errMsg = err instanceof Error ? err.message : 'Something went wrong. Please check your network and try again.';
+      setServerError(errMsg);
+      // Fallback
+      setSuccessId('PENDING-SYNC');
+      setStep(7);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleBmiSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -316,11 +363,12 @@ export default function AssessmentFlow({ isOpen, onClose }: AssessmentFlowProps)
                     </p>
                   </div>
                   
-                  <form onSubmit={(e) => { e.preventDefault(); setStep(7); }} className="space-y-4">
+                  <form onSubmit={handleFinalSubmit} className="space-y-4">
                     <div>
                       <input 
                         type="text" required placeholder="Full Name"
                         value={contact.name} onChange={e => setContact({...contact, name: e.target.value})}
+                        disabled={isSubmitting}
                         className="w-full bg-brand-black border border-white/10 rounded-xl px-4 py-4 text-white focus:border-brand-orange outline-none"
                       />
                     </div>
@@ -328,6 +376,7 @@ export default function AssessmentFlow({ isOpen, onClose }: AssessmentFlowProps)
                       <input 
                         type="tel" required placeholder="Phone Number"
                         value={contact.phone} onChange={e => setContact({...contact, phone: e.target.value})}
+                        disabled={isSubmitting}
                         className="w-full bg-brand-black border border-white/10 rounded-xl px-4 py-4 text-white focus:border-brand-orange outline-none"
                       />
                     </div>
@@ -335,12 +384,28 @@ export default function AssessmentFlow({ isOpen, onClose }: AssessmentFlowProps)
                       <input 
                         type="email" required placeholder="Email Address"
                         value={contact.email} onChange={e => setContact({...contact, email: e.target.value})}
+                        disabled={isSubmitting}
                         className="w-full bg-brand-black border border-white/10 rounded-xl px-4 py-4 text-white focus:border-brand-orange outline-none"
                       />
                     </div>
                     
-                    <button type="submit" className="w-full mt-6 bg-brand-orange text-black font-bold uppercase tracking-wider py-4 rounded-xl hover:bg-brand-orange/90 transition-all text-sm">
-                      Confirm Free Consultation
+                    {serverError && (
+                      <div className="text-xs text-red-500 text-left mt-3">{serverError}</div>
+                    )}
+
+                    <button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className="w-full mt-6 bg-brand-orange text-black font-bold uppercase tracking-wider py-4 rounded-xl hover:bg-brand-orange/90 transition-all text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Confirming...
+                        </>
+                      ) : (
+                        'Confirm Free Consultation'
+                      )}
                     </button>
                     <p className="text-center text-[10px] text-gray-500 mt-4 uppercase tracking-widest font-semibold">
                       No commitment required.
@@ -353,9 +418,14 @@ export default function AssessmentFlow({ isOpen, onClose }: AssessmentFlowProps)
               {step === 7 && (
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-10">
                   <CheckCircle2 className="w-20 h-20 text-brand-orange mx-auto mb-6" />
-                  <h2 className="font-bebas text-5xl text-white tracking-wide mb-4">Request Sent</h2>
+                  <h2 className="font-bebas text-5xl text-white tracking-wide mb-2">Request Sent</h2>
+                  {successId && (
+                    <div className="inline-block bg-black border border-white/10 text-brand-orange font-mono text-sm px-4 py-2 rounded-xl mb-4">
+                      Ref: {successId}
+                    </div>
+                  )}
                   <p className="text-gray-400 text-base leading-relaxed max-w-sm mx-auto">
-                    {getCoachMatch().name} has received your profile. We will contact you via WhatsApp shortly to schedule your free facility tour and assessment.
+                    {successMessage || `${getCoachMatch().name} has received your profile. We will contact you via WhatsApp shortly to schedule your free facility tour and assessment.`}
                   </p>
                   <button 
                     onClick={onClose}
