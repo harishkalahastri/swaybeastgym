@@ -27,7 +27,7 @@ export default function Programs({ onSelectProgram }: ProgramsProps) {
     },
     {
       id: 'p2',
-      title: 'Muscle Gain',
+      title: 'Body Recomposition and Muscle Gain',
       desc: 'Add noticeable muscle size and strength with structured lifting and guided nutrition.',
       img: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&q=80&w=600',
       tag: 'Muscle Gain',
@@ -88,7 +88,7 @@ export default function Programs({ onSelectProgram }: ProgramsProps) {
               TRAINING PROGRAMS
             </span>
             <h2 className="font-bebas text-4xl sm:text-6xl text-white tracking-tight uppercase leading-[0.95]">
-              Training That Fits Your <span className="font-serif italic text-brand-orange lowercase font-normal">Goals</span>
+              One More Thing: <span className="font-serif italic text-brand-orange lowercase font-normal">Body Recomposition</span> and Muscle Gain
             </h2>
           </div>
           <p className="mt-4 md:mt-0 text-gray-400 max-w-sm text-sm">
