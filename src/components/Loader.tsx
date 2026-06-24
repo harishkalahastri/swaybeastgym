@@ -143,44 +143,27 @@ export default function Loader() {
         pointerEvents: fading ? "none" : "all",
       }}
     >
-      {/* Google Fonts */}
-      <style>{\`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;700&display=swap');
-
-        @keyframes scan {
-          0%   { top: 0%;   opacity: .6; }
-          50%  { opacity: 1; }
-          100% { top: 100%; opacity: .6; }
-        }
-        @keyframes wordFloat {
-          0%   { opacity: 0;   transform: translateY(20px)  scale(.9);  }
-          20%  { opacity: .18; }
-          60%  { opacity: .08; }
-          100% { opacity: 0;   transform: translateY(-80px) scale(1.05);}
-        }
-        @keyframes spinRing { to { transform: rotate(360deg); } }
-        @keyframes pulse {
-          0%,100% { transform: scale(1);    box-shadow: 0 0 0  0   rgba(232,41,26,.4); }
-          50%      { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(232,41,26,0); }
-        }
-        @keyframes riseIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fillBar { to { width: 100%; } }
-
-        .sb-ring-1 { animation: spinRing 2.4s linear infinite; }
-        .sb-ring-2 { animation: spinRing 1.8s linear infinite reverse; }
-        .sb-ring-3 { animation: spinRing 3.2s linear infinite; }
-        .sb-core   { animation: pulse 2s ease-in-out infinite; }
-        .sb-logo-row  { animation: riseIn 1s .3s both; }
-        .sb-tagline   { animation: riseIn 1s .5s both; }
-        .sb-tagline2  { animation: riseIn 1s .6s both; }
-        .sb-subline   { animation: riseIn 1s .75s both; }
-        .sb-progress  { animation: riseIn 1s .9s both; }
-        .sb-bar       { animation: fillBar 3.5s 1s ease-out forwards; }
-        .sb-scanline  { animation: scan 4s ease-in-out infinite; }
-      \`}</style>
+      {/* Google Fonts + Keyframe animations — dangerouslySetInnerHTML avoids OXC backtick parse error */}
+      <style dangerouslySetInnerHTML={{ __html: [
+        "@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;700&display=swap');",
+        "@keyframes scan { 0% { top: 0%; opacity: .6; } 50% { opacity: 1; } 100% { top: 100%; opacity: .6; } }",
+        "@keyframes wordFloat { 0% { opacity: 0; transform: translateY(20px) scale(.9); } 20% { opacity: .18; } 60% { opacity: .08; } 100% { opacity: 0; transform: translateY(-80px) scale(1.05); } }",
+        "@keyframes spinRing { to { transform: rotate(360deg); } }",
+        "@keyframes pulse { 0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(232,41,26,.4); } 50% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(232,41,26,0); } }",
+        "@keyframes riseIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }",
+        "@keyframes fillBar { to { width: 100%; } }",
+        ".sb-ring-1 { animation: spinRing 2.4s linear infinite; }",
+        ".sb-ring-2 { animation: spinRing 1.8s linear infinite reverse; }",
+        ".sb-ring-3 { animation: spinRing 3.2s linear infinite; }",
+        ".sb-core   { animation: pulse 2s ease-in-out infinite; }",
+        ".sb-logo-row  { animation: riseIn 1s .3s both; }",
+        ".sb-tagline   { animation: riseIn 1s .5s both; }",
+        ".sb-tagline2  { animation: riseIn 1s .6s both; }",
+        ".sb-subline   { animation: riseIn 1s .75s both; }",
+        ".sb-progress  { animation: riseIn 1s .9s both; }",
+        ".sb-bar       { animation: fillBar 3.5s 1s ease-out forwards; }",
+        ".sb-scanline  { animation: scan 4s ease-in-out infinite; }",
+      ].join(" ") }} />
 
       {/* Canvas */}
       <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }} />
@@ -198,9 +181,9 @@ export default function Loader() {
               color: w.color,
               opacity: 0,
               letterSpacing: ".05em",
-              left: \`\${w.left}%\`,
-              bottom: \`\${w.bottom}%\`,
-              animation: \`wordFloat \${w.duration}s \${w.delay}s ease-in-out infinite\`,
+              left: `${w.left}%`,
+              bottom: `${w.bottom}%`,
+              animation: `wordFloat ${w.duration}s ${w.delay}s ease-in-out infinite`,
             }}
           >
             {w.text}
