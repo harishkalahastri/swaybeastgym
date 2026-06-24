@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dumbbell, Mail, Phone, MapPin, Instagram, Facebook, Clock } from 'lucide-react';
 import { defaultMetrics } from '../config/metrics';
+import { contact } from '../config/contact';
 
 export default function Footer() {
   const city = defaultMetrics.cityName;
@@ -25,10 +26,10 @@ export default function Footer() {
               Hyderabad's premium physical engineering network. We build custom strength splits, macro nutritional targets, and track weekly progress composites to guarantee transformations.
             </p>
             <div className="flex items-center space-x-4 pt-2">
-              <a href="https://instagram.com" className="p-2 bg-black hover:bg-brand-orange hover:text-black rounded-lg text-gray-400 transition-colors border border-white/5" aria-label="Instagram">
+              <a href={contact.social.instagram} target="_blank" rel="noreferrer" className="p-2 bg-black hover:bg-brand-orange hover:text-black rounded-lg text-gray-400 transition-colors border border-white/5" aria-label="Instagram">
                 <Instagram className="w-4 h-4" />
               </a>
-              <a href="https://facebook.com" className="p-2 bg-black hover:bg-brand-orange hover:text-black rounded-lg text-gray-400 transition-colors border border-white/5" aria-label="Facebook">
+              <a href={contact.social.facebook} target="_blank" rel="noreferrer" className="p-2 bg-black hover:bg-brand-orange hover:text-black rounded-lg text-gray-400 transition-colors border border-white/5" aria-label="Facebook">
                 <Facebook className="w-4 h-4" />
               </a>
             </div>
@@ -42,21 +43,21 @@ export default function Footer() {
             <ul className="space-y-3 text-xs text-gray-400">
               <li className="flex items-start">
                 <MapPin className="w-4 h-4 text-brand-orange mr-2.5 mt-0.5 shrink-0" />
-                <span>Pillar No. 135, 2nd Floor, Above Vaishnaoi Honda Showroom, Kondapur, Hyderabad, Telangana - 500084</span>
+                <span>{contact.address.full}</span>
               </li>
               <li className="flex items-center">
                 <Phone className="w-4 h-4 text-brand-orange mr-2.5 shrink-0" />
-                <span>+91 99999 99999</span>
+                <a href={contact.phoneLink} className="hover:text-brand-orange transition-colors">{contact.phoneDisplay}</a>
               </li>
               <li className="flex items-center">
                 <Mail className="w-4 h-4 text-brand-orange mr-2.5 shrink-0" />
-                <span>contact@swaybeast.com</span>
+                <a href={`mailto:${contact.email}`} className="hover:text-brand-orange transition-colors">{contact.email}</a>
               </li>
               <li className="flex items-start">
                 <Clock className="w-4 h-4 text-brand-orange mr-2.5 mt-0.5 shrink-0" />
                 <div>
-                  <span className="block">Mon - Sat: 6:00 AM - 11:00 PM</span>
-                  <span className="block mt-0.5 text-gray-500">Sun: 8:00 AM - 4:00 PM</span>
+                  <span className="block">{contact.hours.weekday}</span>
+                  <span className="block mt-0.5 text-gray-500">{contact.hours.weekend}</span>
                 </div>
               </li>
             </ul>
@@ -70,7 +71,7 @@ export default function Footer() {
             <div className="w-full h-40 rounded-xl overflow-hidden border border-brand-orange/10 relative grayscale opacity-75 hover:grayscale-0 hover:opacity-100 transition-all duration-300">
               <iframe
                 title="Google Maps Location"
-                src="https://maps.google.com/maps?q=Pillar+No+135+Kondapur+Hyderabad&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                src={`https://maps.google.com/maps?q=${contact.address.mapQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                 className="w-full h-full border-0"
                 allowFullScreen={false}
                 loading="lazy"

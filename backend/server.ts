@@ -588,7 +588,7 @@ Do not invent prices or schedules. If you don't know, tell them to call the gym 
     
 Context:
 - Location: Pillar No. 135, 2nd Floor, Above Vaishnaoi Honda Showroom, Kondapur, Hyderabad.
-- Memberships: Standard starts at ₹3,500/month. Quarterly Adapt is ₹9,500. Annual Elite is ₹25,000.
+- Memberships: Standard Split starts at ₹3,500/month. Quarterly Adapt is ₹9,500/3 months. Half-Year Build is ₹17,000/6 months. Annual Transform is ₹30,000/year (best value).
 - Coaches: Expert trainers specialized in biomechanics, muscle gain, fat loss, and sustainable transformation.
 - Vibe: Premium, results-oriented, hardcore but welcoming.
 - Core Offer: Free 1-Day Trial.

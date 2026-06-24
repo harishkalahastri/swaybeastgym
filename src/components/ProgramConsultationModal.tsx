@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { X, Check, Loader2, Phone, MessageCircle } from 'lucide-react';
 import { api } from '../lib/api';
+import { contact } from '../config/contact';
 
 // Program Configuration
 type ProgramType = 'weight_loss' | 'muscle_gain' | 'strength' | 'personal_training' | 'generic';
@@ -318,7 +319,7 @@ export default function ProgramConsultationModal({ isOpen, onClose, programId }:
                   </p>
                   <div className="flex flex-col gap-3">
                     <a
-                      href="https://wa.me/919876543210"
+                      href={contact.whatsappLinks.direct()}
                       target="_blank"
                       rel="noreferrer"
                       className="w-full py-3.5 bg-[#25D366] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#20bd5a] transition-colors flex items-center justify-center"
@@ -327,7 +328,7 @@ export default function ProgramConsultationModal({ isOpen, onClose, programId }:
                       WhatsApp Us Now
                     </a>
                     <a
-                      href="tel:+919876543210"
+                      href={contact.phoneLink}
                       className="w-full py-3.5 bg-brand-charcoal border border-brand-orange/10 text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:border-brand-orange/30 transition-colors flex items-center justify-center"
                     >
                       <Phone className="w-4 h-4 mr-2" />

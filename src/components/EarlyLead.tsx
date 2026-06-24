@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { motion } from 'framer-motion';
 import { Check, Loader2, Phone, MessageCircle } from 'lucide-react';
 import { api } from '../lib/api';
+import { contact } from '../config/contact';
 
 const leadSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -97,7 +98,7 @@ export default function EarlyLead() {
               
               <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
                 <a
-                  href="https://wa.me/919876543210"
+                  href={contact.whatsappLinks.direct()}
                   target="_blank"
                   rel="noreferrer"
                   className="px-6 py-3 bg-[#25D366] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#20bd5a] transition-colors flex items-center justify-center"
@@ -106,7 +107,7 @@ export default function EarlyLead() {
                   WhatsApp Us
                 </a>
                 <a
-                  href="tel:+919876543210"
+                  href={contact.phoneLink}
                   className="px-6 py-3 bg-brand-black border border-white/10 text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:border-brand-orange/30 transition-colors flex items-center justify-center"
                 >
                   <Phone className="w-4 h-4 mr-2" />

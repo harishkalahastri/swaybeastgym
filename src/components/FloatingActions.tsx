@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Phone, MessageSquare, ArrowUp, CalendarRange } from 'lucide-react';
+import { contact } from '../config/contact';
 interface FloatingActionsProps {
   onOpenAssessment: () => void;
 }
@@ -44,7 +45,7 @@ export default function FloatingActions({ onOpenAssessment }: FloatingActionsPro
         </button>
         
         <a
-          href="https://wa.me/919999999999?text=Hello!%20I'd%20like%20to%20know%20more%20about%20membership%20options."
+          href={contact.whatsappLinks.membership()}
           target="_blank"
           rel="noreferrer"
           className="p-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl mx-1 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
@@ -54,7 +55,7 @@ export default function FloatingActions({ onOpenAssessment }: FloatingActionsPro
         </a>
 
         <a
-          href="tel:+919999999999"
+          href={contact.phoneLink}
           className="p-3 bg-brand-charcoal text-white rounded-xl border border-white/5 ml-1 min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label="Call Gym"
         >
@@ -78,7 +79,7 @@ export default function FloatingActions({ onOpenAssessment }: FloatingActionsPro
 
         {/* Floating WhatsApp chat link (Desktop only, mobile has it in bar) */}
         <a
-          href="https://wa.me/919999999999?text=Hello!%20I'd%20like%20to%20book%20a%20private%20coach%20assessment."
+          href={contact.whatsappLinks.assessment()}
           target="_blank"
           rel="noreferrer"
           className="hidden md:flex p-3.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-full shadow-xl pointer-events-auto transition-all duration-300 hover:scale-105"

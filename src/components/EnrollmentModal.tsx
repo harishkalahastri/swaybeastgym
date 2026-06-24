@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { X, Check, Loader2, ShieldCheck } from 'lucide-react';
 import { api } from '../lib/api';
+import { contact } from '../config/contact';
 
 const enrollmentSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -167,7 +168,7 @@ export default function EnrollmentModal({ isOpen, onClose, plan }: EnrollmentMod
 
                 <div className="flex flex-col sm:flex-row justify-center gap-3 max-w-md mx-auto">
                   <a
-                    href="https://wa.me/919876543210"
+                    href={contact.whatsappLinks.direct()}
                     target="_blank"
                     rel="noreferrer"
                     className="flex-1 py-3.5 bg-[#25D366] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#20bd5a] transition-colors"
@@ -175,7 +176,7 @@ export default function EnrollmentModal({ isOpen, onClose, plan }: EnrollmentMod
                     WhatsApp Gym
                   </a>
                   <a
-                    href="tel:+919876543210"
+                    href={contact.phoneLink}
                     className="flex-1 py-3.5 bg-brand-black border border-white/10 text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:border-brand-orange/30 transition-colors"
                   >
                     Call Gym

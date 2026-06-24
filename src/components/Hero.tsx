@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Flame, Dumbbell, Star, Activity, ArrowRight, MessageSquare } from 'lucide-react';
 import { useGym } from '../context/GymContext';
 import { defaultMetrics } from '../config/metrics';
+import { contact } from '../config/contact';
 
 interface HeroProps {
   onOpenAssessment: () => void;
@@ -267,7 +268,7 @@ export default function Hero({ onOpenAssessment }: HeroProps) {
 
               {/* Tertiary: WhatsApp Coach */}
               <a
-                href={`https://wa.me/919999999999?text=Hello%20${encodeURIComponent(gym.name)}!%20I'd%20like%20to%20know%20more%20about%20your%20personal%20training%20programs.`}
+                href={contact.whatsappLinks.general(gym.name)}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center text-xs font-semibold uppercase tracking-wider text-gray-300 hover:text-brand-orange transition-colors py-3 min-h-[44px]"

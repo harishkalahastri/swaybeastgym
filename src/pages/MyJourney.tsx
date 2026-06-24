@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, ArrowRight, ShieldCheck, Dumbbell, Calendar, Activity, CheckCircle2, MessageCircle, PhoneCall, Loader2, ArrowDown } from 'lucide-react';
 import { api } from '../lib/api';
+import { contact } from '../config/contact';
 
 // Mock types for UI buildout until full Supabase hooks are written
 type AuthState = 'enter_phone' | 'enter_otp' | 'authenticated';
@@ -145,10 +146,10 @@ export default function MyJourney() {
             <p className="text-brand-orange font-medium">{phone}</p>
           </div>
           <div className="flex gap-3">
-            <a href="tel:+919999999999" className="p-3 bg-white/5 rounded-xl text-white hover:bg-white/10 transition-colors">
+            <a href={contact.phoneLink} className="p-3 bg-white/5 rounded-xl text-white hover:bg-white/10 transition-colors">
               <PhoneCall className="w-5 h-5" />
             </a>
-            <a href="https://wa.me/919999999999" target="_blank" rel="noopener noreferrer" className="p-3 bg-[#25D366]/10 text-[#25D366] rounded-xl hover:bg-[#25D366]/20 transition-colors">
+            <a href={contact.whatsappLinks.direct()} target="_blank" rel="noopener noreferrer" className="p-3 bg-[#25D366]/10 text-[#25D366] rounded-xl hover:bg-[#25D366]/20 transition-colors">
               <MessageCircle className="w-5 h-5" />
             </a>
           </div>

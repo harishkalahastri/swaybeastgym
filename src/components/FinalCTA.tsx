@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, MessageSquare, Phone } from 'lucide-react';
+import { contact } from '../config/contact';
 
 export default function FinalCTA() {
   return (
@@ -40,7 +41,7 @@ export default function FinalCTA() {
 
           {/* WhatsApp */}
           <a
-            href="https://wa.me/919999999999?text=Hello!%20I'd%20like%20to%20book%20a%20free%20trial%20session%20now."
+            href={contact.whatsappLinks.trial()}
             target="_blank"
             rel="noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-4 text-xs font-bold uppercase tracking-wider text-black border-2 border-black rounded-full hover:bg-black hover:text-white transition-all"
@@ -51,7 +52,7 @@ export default function FinalCTA() {
 
           {/* Call Gym */}
           <a
-            href="tel:+919999999999"
+            href={contact.phoneLink}
             className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold uppercase tracking-wider text-black hover:underline"
           >
             <Phone className="w-4 h-4 mr-1.5" />
