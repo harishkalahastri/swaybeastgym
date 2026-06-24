@@ -262,66 +262,7 @@ app.post('/api/leads/process-submission', async (req: express.Request, res: expr
   }
 });
 
-// 1. Trial Form Submission
-app.post('/api/leads/trial-form', async (req: express.Request, res: express.Response) => {
-  const { name, whatsapp_number, email, fitness_goal, preferred_time, source = 'trial_form' } = req.body;
 
-  if (!name || !whatsapp_number) {
-    return res.status(400).json({ success: false, message: 'Name and WhatsApp number are required fields.' });
-  }
-
-  try {
-    // Guard against rapid duplicate clicks (within 60s)
-    const isDup = await isDuplicateSubmission(whatsapp_number, source);
-    if (isDup) {
-      console.log(`[IDEMPOTENCY] Caught duplicate submission for ${name} (${whatsapp_number}) via ${source}. Returning success.`);
-      return res.status(200).json({ success: true, status: 'duplicate_success_shielded' });
-    }
-
-    let leadId = 'fake-lead-' + Math.floor(Math.random() * 100000);
-    if (supabase) {
-      // Insert Lead
-      const { data: leadData, error: leadError } = await supabase
-        .from('leads')
-        .insert({
-          name,
-          whatsapp_number,
-          source,
-          status: 'new'
-        })
-        .select('id')
-        .single();
-
-      if (leadError) throw leadError;
-      leadId = leadData.id;
-
-      // Insert Bookings
-      const { error: bookingError } = await supabase
-        .from('trial_bookings')
-        .insert({
-          lead_id: leadId,
-          fitness_goal: fitness_goal || 'not_specified',
-          preferred_time: preferred_time || 'not_specified'
-        });
-
-      if (bookingError) throw bookingError;
-    } else {
-      console.log(`[STUB DB INSERT] Trial Booking Lead: ${name} | Phone: ${whatsapp_number} | Source: ${source}`);
-    }
-
-    // Trigger dual alerts asynchronously
-    const timeDetail = preferred_time ? `Slot: ${preferred_time}` : 'Not Specified';
-    sendWhatsAppLeadNotification(leadId, name, whatsapp_number, source, timeDetail);
-    sendWhatsAppOwnerNotification(leadId, name, whatsapp_number, source, `Goal: ${fitness_goal}, Time: ${preferred_time}, Email: ${email}`);
-    sendEmailOwnerNotification(leadId, name, whatsapp_number, source, `Goal: ${fitness_goal}, Time: ${preferred_time}, Email: ${email}`);
-
-    return res.status(200).json({ success: true, leadId });
-  } catch (err) {
-    const errMsg = err instanceof Error ? err.message : String(err);
-    console.error('Trial form processing failed:', err);
-    return res.status(500).json({ success: false, message: errMsg || 'Server error occurred processing trial.' });
-  }
-});
 
 // 2. BMI Calculator Submission
 app.post('/api/leads/bmi-calculator', async (req: express.Request, res: express.Response) => {
