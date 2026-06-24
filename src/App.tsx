@@ -8,6 +8,48 @@ import MyJourney from './pages/MyJourney';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 
+function SplashScreen({ onComplete }: { onComplete: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onComplete, 2500);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
+      className="fixed inset-0 z-[9999] bg-black text-white flex flex-col items-center justify-center text-center p-5"
+    >
+      <div className="mb-5 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF5F00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3">
+          <path d="m6.5 6.5 11 11"/>
+          <path d="m21 21-1-1"/>
+          <path d="m3 3 1 1"/>
+          <path d="m18.5 5.5 3 3"/>
+          <path d="m2.5 15.5 3 3"/>
+          <path d="m16 16 .5-.5 3 3-.5.5z"/>
+          <path d="m5 5 .5-.5 3 3-.5.5z"/>
+          <path d="M12 5V3"/>
+          <path d="M12 21v-2"/>
+          <path d="M19 12h2"/>
+          <path d="M3 12h2"/>
+        </svg>
+        <span className="font-bebas text-3xl tracking-widest font-bold uppercase">SWAY <span className="text-brand-orange">BEAST</span></span>
+      </div>
+      <h1 className="text-xl md:text-2xl mb-3 font-bold">Premium Fitness Engineering & Biomechanics Club</h1>
+      <p className="text-gray-400 text-sm max-w-md mx-auto mb-8 leading-relaxed">
+        Located in Kondapur, Hyderabad. Experience science-backed personal training, custom hypertrophy programs, fat loss splits, and advanced athletic longevity coaching.
+      </p>
+      <motion.div 
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+        className="w-10 h-10 border-4 border-brand-orange/20 border-t-brand-orange rounded-full"
+      />
+    </motion.div>
+  );
+}
+
 // Components
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -188,15 +230,22 @@ function HomePage() {
 }
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/my-journey" element={<MyJourney />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Router>
+    <>
+      <AnimatePresence>
+        {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} key="splash" />}
+      </AnimatePresence>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/my-journey" element={<MyJourney />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
