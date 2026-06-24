@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Dumbbell, Mail, Phone, MapPin, Instagram, Facebook, Clock } from 'lucide-react';
 import { defaultMetrics } from '../config/metrics';
 import { contact } from '../config/contact';
@@ -95,9 +96,9 @@ export default function Footer() {
         <div className="pt-8 flex flex-col sm:flex-row justify-between items-center text-[10px] text-gray-500 font-medium">
           <p>&copy; {new Date().getFullYear()} {gym}. All Rights Reserved.</p>
           <div className="flex space-x-4 mt-4 sm:mt-0">
-            <a href="#" className="hover:text-brand-orange">Terms of Service</a>
+            <Link to="/terms" className="hover:text-brand-orange transition-colors">Terms of Service</Link>
             <span>&bull;</span>
-            <a href="#" className="hover:text-brand-orange">Privacy Policy</a>
+            <Link to="/privacy" className="hover:text-brand-orange transition-colors">Privacy Policy</Link>
           </div>
         </div>
 
